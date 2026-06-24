@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Poupa+ - Budgets</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-fixed": "#a9f0df",
+                      "on-secondary-fixed-variant": "#005228",
+                      "tertiary": "#880002",
+                      "secondary-container": "#6bfe9c",
+                      "on-secondary-container": "#00743a",
+                      "background": "#f8f9ff",
+                      "surface-variant": "#d3e4fe",
+                      "on-primary-fixed-variant": "#005045",
+                      "surface-container-low": "#eff4ff",
+                      "error-container": "#ffdad6",
+                      "on-surface-variant": "#3f4946",
+                      "tertiary-container": "#ab2017",
+                      "outline": "#6f7976",
+                      "on-background": "#0b1c30",
+                      "surface-container-highest": "#d3e4fe",
+                      "secondary-fixed-dim": "#4ae183",
+                      "outline-variant": "#bec9c5",
+                      "on-primary-container": "#95dccc",
+                      "surface-dim": "#cbdbf5",
+                      "on-primary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "primary-fixed-dim": "#8dd4c3",
+                      "inverse-on-surface": "#eaf1ff",
+                      "surface-container": "#e5eeff",
+                      "inverse-primary": "#8dd4c3",
+                      "tertiary-fixed-dim": "#ffb4a9",
+                      "surface": "#f8f9ff",
+                      "on-primary-fixed": "#00201b",
+                      "on-tertiary-fixed": "#410000",
+                      "on-surface": "#0b1c30",
+                      "on-secondary-fixed": "#00210c",
+                      "surface-bright": "#f8f9ff",
+                      "error": "#ba1a1a",
+                      "tertiary-fixed": "#ffdad5",
+                      "on-tertiary-container": "#ffc0b6",
+                      "on-secondary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary": "#006d37",
+                      "surface-tint": "#1e695c",
+                      "secondary-fixed": "#6bfe9c",
+                      "surface-container-high": "#dce9ff",
+                      "primary": "#004a3f",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#910807",
+                      "primary-container": "#146356",
+                      "on-error": "#ffffff",
+                      "inverse-surface": "#213145"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "32px",
+                      "xs": "4px",
+                      "sm": "8px",
+                      "base": "4px",
+                      "lg": "24px",
+                      "md": "16px",
+                      "gutter": "16px",
+                      "margin-mobile": "16px",
+                      "xl": "40px"
+              },
+              "fontFamily": {
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Manrope"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Manrope"
+                      ],
+                      "data-mono": [
+                              "JetBrains Mono"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Manrope"
+                      ]
+              },
+              "fontSize": {
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "data-mono": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Subtle ambient shadow for cards */
+        .ambient-shadow {
+            box-shadow: 0px 2px 4px rgba(20, 99, 86, 0.04), 0px 4px 12px rgba(0, 0, 0, 0.03);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-sm antialiased">
+<!-- TopAppBar (Mobile Only) -->
+<header class="md:hidden fixed top-0 left-0 w-full z-50 flex justify-between items-center px-lg h-16 bg-surface dark:bg-surface-dim shadow-sm text-primary dark:text-primary-fixed-dim font-headline-md text-headline-md">
+<div class="flex items-center gap-sm">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">Poupa+</span>
+</div>
+<div class="flex items-center gap-sm">
+<button aria-label="sync" class="p-xs cursor-pointer active:scale-95 transition-transform hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors rounded-full" data-icon="sync">
+<span class="material-symbols-outlined">sync</span>
+</button>
+<button aria-label="account_circle" class="p-xs cursor-pointer active:scale-95 transition-transform hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors rounded-full" data-icon="account_circle">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar (Desktop Only) -->
+<nav class="hidden md:flex fixed left-0 top-0 h-full flex flex-col py-lg px-md z-40 bg-surface-container-lowest dark:bg-inverse-surface shadow-sm docked left-0 h-screen w-64">
+<div class="mb-xl px-sm flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-primary" data-icon="account_balance">account_balance</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary dark:text-primary-fixed-dim">Poupa+</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Wealth Management</p>
+</div>
+</div>
+<ul class="flex flex-col gap-xs flex-grow">
+<li>
+<a class="flex items-center gap-md px-sm py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low dark:hover:bg-surface-container transition-all active:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-sm text-body-sm">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low dark:hover:bg-surface-container transition-all active:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-body-sm text-body-sm">Transactions</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-sm rounded-lg text-primary dark:text-primary-fixed-dim font-bold bg-surface-container-low dark:bg-surface-container hover:bg-surface-container-low dark:hover:bg-surface-container transition-all active:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined fill" data-icon="account_balance_wallet" data-weight="fill">account_balance_wallet</span>
+<span class="font-body-sm text-body-sm">Budgets</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low dark:hover:bg-surface-container transition-all active:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="ads_click">ads_click</span>
+<span class="font-body-sm text-body-sm">Goals</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low dark:hover:bg-surface-container transition-all active:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+<span class="font-body-sm text-body-sm">Reports</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low dark:hover:bg-surface-container transition-all active:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-body-sm text-body-sm">Family</span>
+</a>
+</li>
+<li class="mt-auto">
+<a class="flex items-center gap-md px-sm py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low dark:hover:bg-surface-container transition-all active:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-sm text-body-sm">Settings</span>
+</a>
+</li>
+</ul>
+<div class="mt-lg">
+<button class="w-full bg-primary-container text-on-primary-container font-label-caps text-label-caps py-sm px-md rounded-lg flex items-center justify-center gap-xs hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+                New Transaction
+            </button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-[80px] md:pt-margin-desktop px-margin-mobile md:px-margin-desktop md:ml-64 pb-margin-desktop max-w-[1200px] mx-auto min-h-screen">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-lg">
+<div>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Monthly Budgets</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-xs">Track your spending limits for November 2023.</p>
+</div>
+<div class="flex items-center gap-sm">
+<button class="border border-outline text-on-surface font-label-caps text-label-caps py-sm px-md rounded flex items-center gap-xs hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span>
+                    Edit Limits
+                </button>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps py-sm px-md rounded flex items-center gap-xs hover:opacity-90 transition-opacity shadow-sm">
+<span class="material-symbols-outlined text-[18px]" data-icon="add_circle">add_circle</span>
+                    New Budget
+                </button>
+</div>
+</div>
+<!-- Summary Card -->
+<section class="bg-surface-container-lowest rounded-lg ambient-shadow p-md md:p-lg mb-lg border border-outline-variant/30">
+<div class="flex flex-col md:flex-row justify-between gap-lg">
+<div class="flex-1">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs">Total Budget Overview</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-md">You have spent 65% of your total planned budget this month.</p>
+<div class="flex items-baseline gap-sm mb-sm">
+<span class="font-headline-lg text-headline-lg text-on-surface data-mono">$3,245.50</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">/ $5,000.00</span>
+</div>
+<!-- Progress Bar -->
+<div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden mt-sm">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 65%;"></div>
+</div>
+</div>
+<!-- Quick Stats Grid -->
+<div class="flex-1 grid grid-cols-2 gap-md">
+<div class="bg-surface p-sm rounded border border-outline-variant/20">
+<div class="flex items-center gap-xs text-on-surface-variant mb-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-label-caps text-label-caps">Remaining</span>
+</div>
+<div class="font-data-mono text-data-mono text-on-surface text-lg">$1,754.50</div>
+</div>
+<div class="bg-error-container/20 p-sm rounded border border-error-container/50">
+<div class="flex items-center gap-xs text-error mb-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="warning">warning</span>
+<span class="font-label-caps text-label-caps">Over Budget</span>
+</div>
+<div class="font-data-mono text-data-mono text-error text-lg">1 Category</div>
+</div>
+<div class="bg-surface p-sm rounded border border-outline-variant/20">
+<div class="flex items-center gap-xs text-on-surface-variant mb-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-caps text-label-caps">Days Left</span>
+</div>
+<div class="font-data-mono text-data-mono text-on-surface text-lg">12 Days</div>
+</div>
+<div class="bg-surface p-sm rounded border border-outline-variant/20">
+<div class="flex items-center gap-xs text-on-surface-variant mb-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="savings">savings</span>
+<span class="font-label-caps text-label-caps">Proj. Savings</span>
+</div>
+<div class="font-data-mono text-data-mono text-secondary text-lg">$450.00</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Category Budgets Grid -->
+<h3 class="font-headline-md text-headline-md text-on-surface mb-md mt-xl">Budget Categories</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+<!-- Card 1: Food & Dining (Warning state) -->
+<article class="bg-surface-container-lowest rounded-lg ambient-shadow p-md border border-outline-variant/30 flex flex-col hover:border-outline/50 transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface text-[18px]">Food &amp; Dining</h4>
+</div>
+<button aria-label="More options" class="text-on-surface-variant hover:text-primary transition-colors p-xs">
+<span class="material-symbols-outlined text-[20px]" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<div class="mt-auto">
+<div class="flex justify-between items-end mb-xs">
+<span class="font-data-mono text-data-mono text-on-surface text-lg">$750.00</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">of $800.00</span>
+</div>
+<div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden mb-xs">
+<div class="bg-tertiary-container h-full rounded-full" style="width: 93%;"></div>
+</div>
+<div class="flex justify-between items-center mt-xs">
+<span class="font-label-caps text-label-caps text-tertiary-container">93% Spent</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">$50.00 left</span>
+</div>
+</div>
+</article>
+<!-- Card 2: Transport (Normal state) -->
+<article class="bg-surface-container-lowest rounded-lg ambient-shadow p-md border border-outline-variant/30 flex flex-col hover:border-outline/50 transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="commute">commute</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface text-[18px]">Transport</h4>
+</div>
+<button aria-label="More options" class="text-on-surface-variant hover:text-primary transition-colors p-xs">
+<span class="material-symbols-outlined text-[20px]" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<div class="mt-auto">
+<div class="flex justify-between items-end mb-xs">
+<span class="font-data-mono text-data-mono text-on-surface text-lg">$180.00</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">of $300.00</span>
+</div>
+<div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden mb-xs">
+<div class="bg-primary h-full rounded-full" style="width: 60%;"></div>
+</div>
+<div class="flex justify-between items-center mt-xs">
+<span class="font-label-caps text-label-caps text-primary">60% Spent</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">$120.00 left</span>
+</div>
+</div>
+</article>
+<!-- Card 3: Leisure (Over Budget state) -->
+<article class="bg-error-container/10 rounded-lg ambient-shadow p-md border border-error/30 flex flex-col hover:border-error/50 transition-colors cursor-pointer group relative overflow-hidden">
+<!-- Over budget indicator tab -->
+<div class="absolute top-0 right-0 bg-error text-on-error font-label-caps text-[10px] px-sm py-[2px] rounded-bl-lg flex items-center gap-[2px]">
+<span class="material-symbols-outlined text-[12px]" data-icon="error">error</span>
+                    OVER LIMIT
+                </div>
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center text-error">
+<span class="material-symbols-outlined" data-icon="sports_esports">sports_esports</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface text-[18px]">Leisure</h4>
+</div>
+<button aria-label="More options" class="text-on-surface-variant hover:text-error transition-colors p-xs">
+<span class="material-symbols-outlined text-[20px]" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<div class="mt-auto">
+<div class="flex justify-between items-end mb-xs">
+<span class="font-data-mono text-data-mono text-error font-bold text-lg">$450.00</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">of $400.00</span>
+</div>
+<div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden mb-xs">
+<div class="bg-error h-full rounded-full" style="width: 100%;"></div>
+</div>
+<div class="flex justify-between items-center mt-xs">
+<span class="font-label-caps text-label-caps text-error">112% Spent</span>
+<span class="font-label-caps text-label-caps text-error">-$50.00 over</span>
+</div>
+</div>
+</article>
+<!-- Card 4: Utilities (Normal state) -->
+<article class="bg-surface-container-lowest rounded-lg ambient-shadow p-md border border-outline-variant/30 flex flex-col hover:border-outline/50 transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="lightbulb">lightbulb</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface text-[18px]">Utilities</h4>
+</div>
+<button aria-label="More options" class="text-on-surface-variant hover:text-primary transition-colors p-xs">
+<span class="material-symbols-outlined text-[20px]" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<div class="mt-auto">
+<div class="flex justify-between items-end mb-xs">
+<span class="font-data-mono text-data-mono text-on-surface text-lg">$120.50</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">of $250.00</span>
+</div>
+<div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden mb-xs">
+<div class="bg-primary h-full rounded-full" style="width: 48%;"></div>
+</div>
+<div class="flex justify-between items-center mt-xs">
+<span class="font-label-caps text-label-caps text-primary">48% Spent</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">$129.50 left</span>
+</div>
+</div>
+</article>
+<!-- Card 5: Shopping (Normal state) -->
+<article class="bg-surface-container-lowest rounded-lg ambient-shadow p-md border border-outline-variant/30 flex flex-col hover:border-outline/50 transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface text-[18px]">Shopping</h4>
+</div>
+<button aria-label="More options" class="text-on-surface-variant hover:text-primary transition-colors p-xs">
+<span class="material-symbols-outlined text-[20px]" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<div class="mt-auto">
+<div class="flex justify-between items-end mb-xs">
+<span class="font-data-mono text-data-mono text-on-surface text-lg">$85.00</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">of $200.00</span>
+</div>
+<div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden mb-xs">
+<div class="bg-primary h-full rounded-full" style="width: 42%;"></div>
+</div>
+<div class="flex justify-between items-center mt-xs">
+<span class="font-label-caps text-label-caps text-primary">42% Spent</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">$115.00 left</span>
+</div>
+</div>
+</article>
+<!-- Add New Category Card -->
+<article class="bg-surface-variant/30 rounded-lg p-md border border-dashed border-outline-variant flex flex-col items-center justify-center min-h-[160px] cursor-pointer hover:bg-surface-variant/50 transition-colors text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined text-[32px] mb-xs" data-icon="add_circle">add_circle</span>
+<span class="font-body-sm text-body-sm font-medium">Add Category</span>
+</article>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 bg-surface dark:bg-surface-dim flex justify-around items-center h-16 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-caps text-[10px] mt-xs">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-primary border-t-2 border-primary" href="#">
+<span class="material-symbols-outlined fill" data-icon="account_balance_wallet" data-weight="fill">account_balance_wallet</span>
+<span class="font-label-caps text-[10px] mt-xs text-primary font-bold">Budgets</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+<span class="font-label-caps text-[10px] mt-xs">Add</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+<span class="font-label-caps text-[10px] mt-xs">Reports</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-caps text-[10px] mt-xs">Menu</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="PoupaPlus.Api/PoupaPlus.Api.csproj" />
+  <Project Path="PoupaPlus.Domain/PoupaPlus.Domain.csproj" />
+  <Project Path="PoupaPlus.Tests/PoupaPlus.Tests.csproj" />
+</Solution>

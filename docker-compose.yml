@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: poupa-plus-postgres
+    environment:
+      POSTGRES_DB: poupa_plus
+      POSTGRES_USER: poupa
+      POSTGRES_PASSWORD: poupa_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - poupa_plus_pgdata:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U poupa -d poupa_plus"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: PoupaPlus.Api/Dockerfile
+    container_name: poupa-plus-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Postgres: Host=db;Port=5432;Database=poupa_plus;Username=poupa;Password=poupa_dev
+      EnableHttpsRedirection: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5254:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: /
+    container_name: poupa-plus-frontend
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+
+volumes:
+  poupa_plus_pgdata:

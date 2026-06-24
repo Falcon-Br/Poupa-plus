@@ -1,0 +1,44 @@
+@PoupaPlus.Api_HostAddress = http://localhost:5254
+@UserId = 00000000-0000-0000-0000-000000000000
+
+GET {{PoupaPlus.Api_HostAddress}}/api/health
+Accept: application/json
+
+###
+
+POST {{PoupaPlus.Api_HostAddress}}/api/auth/local
+Content-Type: application/json
+
+{
+  "name": "Demo Poupa+",
+  "email": "demo@poupa.local"
+}
+
+###
+
+GET {{PoupaPlus.Api_HostAddress}}/api/summaries/monthly?userId={{UserId}}&year=2026&month=6
+Accept: application/json
+###
+
+POST {{PoupaPlus.Api_HostAddress}}/api/sync/push
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "queueItemId": "11111111-1111-1111-1111-111111111111",
+      "userId": "{{UserId}}",
+      "entity": "transaction",
+      "entityId": "22222222-2222-2222-2222-222222222222",
+      "operation": "create",
+      "payload": {
+        "id": "22222222-2222-2222-2222-222222222222",
+        "userId": "{{UserId}}",
+        "kind": "VariableExpense",
+        "description": "Mercado",
+        "amount": 120,
+        "occurredAt": "2026-06-18"
+      }
+    }
+  ]
+}

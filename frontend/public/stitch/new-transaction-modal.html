@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Poupa+ - Nova Transação</title>
+<!-- Google Fonts: Manrope & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#ab2017",
+                        "outline": "#6f7976",
+                        "on-background": "#0b1c30",
+                        "secondary-fixed-dim": "#4ae183",
+                        "outline-variant": "#bec9c5",
+                        "on-primary-container": "#95dccc",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface-dim": "#cbdbf5",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#8dd4c3",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-container": "#e5eeff",
+                        "inverse-primary": "#8dd4c3",
+                        "primary-fixed": "#a9f0df",
+                        "tertiary": "#880002",
+                        "secondary-container": "#6bfe9c",
+                        "on-secondary-container": "#00743a",
+                        "background": "#f8f9ff",
+                        "on-secondary-fixed-variant": "#005228",
+                        "surface-variant": "#d3e4fe",
+                        "on-primary-fixed-variant": "#005045",
+                        "surface-container-low": "#eff4ff",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#3f4946",
+                        "on-secondary": "#ffffff",
+                        "secondary": "#006d37",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#1e695c",
+                        "secondary-fixed": "#6bfe9c",
+                        "surface-container-high": "#dce9ff",
+                        "primary": "#004a3f",
+                        "on-tertiary-fixed-variant": "#910807",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#146356",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#213145",
+                        "tertiary-fixed-dim": "#ffb4a9",
+                        "surface": "#f8f9ff",
+                        "on-primary-fixed": "#00201b",
+                        "on-secondary-fixed": "#00210c",
+                        "on-tertiary-fixed": "#410000",
+                        "on-surface": "#0b1c30",
+                        "surface-bright": "#f8f9ff",
+                        "tertiary-fixed": "#ffdad5",
+                        "on-tertiary-container": "#ffc0b6",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "margin-desktop": "32px",
+                        "base": "4px",
+                        "lg": "24px",
+                        "xl": "40px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Manrope"],
+                        "label-caps": ["Inter"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "body-lg": ["Inter"],
+                        "data-mono": ["JetBrains Mono"],
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "data-mono": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for dropdowns if needed */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #bec9c5;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-lg antialiased overflow-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- App Shell (Background) -->
+<div class="flex h-screen w-full select-none blur-[2px] opacity-60 transition-all duration-300">
+<!-- SideNavBar (From JSON) -->
+<nav class="hidden md:flex flex-col bg-surface-container-lowest dark:bg-inverse-surface shadow-sm fixed left-0 top-0 h-full w-64 py-lg px-md z-40 border-r border-outline-variant/30">
+<div class="mb-xl px-sm">
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary dark:text-primary-fixed-dim tracking-tight">Poupa+</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Wealth Management</p>
+</div>
+<div class="flex-1 space-y-sm">
+<!-- Dashboard -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low dark:hover:bg-surface-container transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span class="font-body-sm text-body-sm font-medium">Dashboard</span>
+</a>
+<!-- Transactions (Active) -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg bg-surface-container text-primary dark:text-primary-fixed-dim font-bold transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">receipt_long</span>
+<span class="font-body-sm text-body-sm">Transactions</span>
+</a>
+<!-- Budgets -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+<span class="font-body-sm text-body-sm font-medium">Budgets</span>
+</a>
+<!-- Goals -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]">ads_click</span>
+<span class="font-body-sm text-body-sm font-medium">Goals</span>
+</a>
+<!-- Reports -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]">bar_chart</span>
+<span class="font-body-sm text-body-sm font-medium">Reports</span>
+</a>
+<!-- Family -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]">group</span>
+<span class="font-body-sm text-body-sm font-medium">Family</span>
+</a>
+</div>
+<div class="mt-auto pt-lg border-t border-outline-variant/30">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="font-body-sm text-body-sm font-medium">Settings</span>
+</a>
+<div class="mt-md px-md flex items-center gap-md">
+<img class="w-8 h-8 rounded-full object-cover bg-surface-variant" data-alt="A small, professional headshot avatar of a user in a well-lit studio setting, neutral background, modern corporate style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUNflG2tm4TdFFrXoiPynxW8hMxR935MJ5nGglW74Ws8lf5THFbF9vBMa5plRnWKRkGimdnSMUysliFVXrPAIZTR_TlalMdRanGnlxFKBFakh1C8MiIUStWg_6si3SohSWIuuNfijWFXOLyIod3XiMGzCl8bhnbYVjpcjjaZMMdEfoIc31jb_syLDqRJzcKO1E6RBt4irZp6uRlSVwlG1tQPANI0zO_ym2xahETmgjFVvrsrGx1amhOyFubYHudaZcLlVZokwbUps"/>
+<div class="flex-1 min-w-0">
+<p class="font-body-sm text-body-sm font-medium truncate">User Profile</p>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Area (Background) -->
+<main class="flex-1 ml-0 md:ml-64 p-margin-mobile md:p-margin-desktop bg-surface flex flex-col h-full">
+<header class="flex justify-between items-center mb-xl">
+<h2 class="font-headline-lg text-headline-lg text-on-background">Transactions</h2>
+<button class="bg-primary-container text-on-primary-container px-lg py-sm rounded-DEFAULT font-label-caps uppercase tracking-widest flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    New Transaction
+                </button>
+</header>
+<div class="flex-1 bg-surface-container-lowest rounded-lg shadow-[0px_2px_4px_rgba(20,99,86,0.04),_0px_4px_12px_rgba(0,0,0,0.03)] p-lg border border-outline-variant/20">
+<!-- Dummy List -->
+<div class="space-y-lg">
+<div>
+<p class="font-label-caps text-label-caps text-outline uppercase mb-sm">Today</p>
+<div class="space-y-sm">
+<div class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-DEFAULT">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">shopping_cart</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm font-medium text-on-background">Supermarket</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">Groceries • Credit Card</p>
+</div>
+</div>
+<span class="font-data-mono text-data-mono text-error font-medium">-R$ 154,20</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Modal Overlay Container -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-inverse-surface/40 backdrop-blur-sm p-margin-mobile md:p-0">
+<!-- Modal Card -->
+<div aria-modal="true" class="bg-surface-container-lowest w-full max-w-[560px] rounded-xl shadow-2xl border border-outline-variant/20 flex flex-col transform transition-all scale-100 opacity-100" role="dialog">
+<!-- Header -->
+<div class="flex items-center justify-between px-lg py-md border-b border-outline-variant/30">
+<h2 class="font-headline-md text-headline-md text-on-background">Nova Transação</h2>
+<button aria-label="Close modal" class="text-on-surface-variant hover:text-on-background hover:bg-surface-container p-sm rounded-full transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Body -->
+<div class="p-lg overflow-y-auto max-h-[768px]">
+<!-- Type Toggle (Despesa / Ganho) -->
+<div class="flex p-xs bg-surface-container rounded-lg mb-xl w-full">
+<button class="flex-1 py-sm px-md rounded-DEFAULT bg-surface-container-lowest shadow-sm text-primary-fixed-variant font-label-caps text-label-caps uppercase text-center transition-all">
+                        Despesa
+                    </button>
+<button class="flex-1 py-sm px-md rounded-DEFAULT text-on-surface-variant font-label-caps text-label-caps uppercase text-center hover:text-on-background transition-all">
+                        Ganho
+                    </button>
+</div>
+<!-- Form Grid -->
+<form class="space-y-lg">
+<!-- Valor -->
+<div class="flex flex-col gap-xs">
+<label class="font-body-sm text-body-sm text-on-surface-variant">Valor</label>
+<div class="relative flex items-center">
+<span class="absolute left-md font-headline-md text-headline-md text-outline">R$</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-md pl-12 pr-md font-headline-lg text-headline-lg text-on-background focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all placeholder:text-outline-variant" placeholder="0,00" type="text"/>
+</div>
+</div>
+<!-- Descrição -->
+<div class="flex flex-col gap-xs">
+<label class="font-body-sm text-body-sm text-on-surface-variant" for="descricao">Descrição</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-sm text-body-sm text-on-background focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all placeholder:text-outline-variant" id="descricao" placeholder="Ex: Compra no mercado" type="text"/>
+</div>
+<!-- Grid for Half-width fields -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Categoria -->
+<div class="flex flex-col gap-xs">
+<label class="font-body-sm text-body-sm text-on-surface-variant">Categoria</label>
+<div class="relative">
+<span class="absolute left-md top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-outline">category</span>
+<select class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-sm pl-10 pr-lg font-body-sm text-body-sm text-on-background appearance-none focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all">
+<option disabled="" selected="" value="">Selecionar...</option>
+<option value="alimentacao">Alimentação</option>
+<option value="transporte">Transporte</option>
+<option value="moradia">Moradia</option>
+</select>
+<span class="absolute right-md top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Conta -->
+<div class="flex flex-col gap-xs">
+<label class="font-body-sm text-body-sm text-on-surface-variant">Conta</label>
+<div class="relative">
+<span class="absolute left-md top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-outline">account_balance</span>
+<select class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-sm pl-10 pr-lg font-body-sm text-body-sm text-on-background appearance-none focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all">
+<option value="corrente">Conta Corrente</option>
+<option value="poupanca">Poupança</option>
+<option value="credito">Cartão de Crédito</option>
+</select>
+<span class="absolute right-md top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Data -->
+<div class="flex flex-col gap-xs">
+<label class="font-body-sm text-body-sm text-on-surface-variant">Data</label>
+<div class="relative">
+<span class="absolute left-md top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-outline">calendar_today</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-sm pl-10 pr-md font-body-sm text-body-sm text-on-background focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all" type="date"/>
+</div>
+</div>
+<!-- Status -->
+<div class="flex flex-col gap-xs">
+<label class="font-body-sm text-body-sm text-on-surface-variant">Status</label>
+<div class="relative">
+<span class="absolute left-md top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-outline">check_circle</span>
+<select class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-sm pl-10 pr-lg font-body-sm text-body-sm text-on-background appearance-none focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all">
+<option value="confirmado">Confirmado</option>
+<option value="pendente">Pendente</option>
+</select>
+<span class="absolute right-md top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Repetir Toggle -->
+<div class="pt-sm flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-[20px] text-primary">event_repeat</span>
+<div>
+<p class="font-body-sm text-body-sm font-medium text-on-background">Transação Recorrente</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-[12px]">Repetir mensalmente</p>
+</div>
+</div>
+<!-- Custom Toggle Switch -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-outline-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+</form>
+</div>
+<!-- Footer Actions -->
+<div class="px-lg py-md border-t border-outline-variant/30 flex items-center justify-end gap-sm bg-surface-bright rounded-b-xl">
+<button class="px-md py-sm rounded-lg font-label-caps text-label-caps uppercase text-primary border border-primary hover:bg-surface-container-low transition-colors tracking-widest">
+                    Cancelar
+                </button>
+<button class="px-md py-sm rounded-lg font-label-caps text-label-caps uppercase bg-primary-container text-on-primary-container hover:brightness-110 transition-all tracking-widest shadow-sm">
+                    Salvar Transação
+                </button>
+</div>
+</div>
+</div>
+</body></html>
