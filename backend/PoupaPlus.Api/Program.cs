@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -36,6 +38,7 @@ var connectionString = builder.Configuration.GetConnectionString("Postgres")
 
 builder.Services.AddSingleton(new NpgsqlDataSourceBuilder(connectionString).Build());
 builder.Services.AddSingleton<PostgresFinanceStore>();
+builder.Services.AddSingleton<PasswordResetEmailSender>();
 
 var enableHttpsRedirection = builder.Configuration.GetValue<bool>("EnableHttpsRedirection");
 
@@ -116,22 +119,51 @@ app.MapPost("/api/auth/login", async (LoginAccountRequest request, PostgresFinan
         : Results.Ok(user);
 });
 
-app.MapPost("/api/auth/password-reset", async (PasswordResetRequest request, PostgresFinanceStore store, ILogger<Program> logger) =>
+app.MapPost("/api/auth/password-reset", async (PasswordResetRequest request, PostgresFinanceStore store, PasswordResetEmailSender emailSender, ILogger<Program> logger) =>
 {
     if (string.IsNullOrWhiteSpace(request.Email))
     {
         return Results.BadRequest(new ApiError("INVALID_EMAIL", "Informe um email."));
     }
 
-    var token = await store.CreatePasswordResetTokenAsync(request.Email);
-    if (token is not null)
+    try
     {
-        logger.LogInformation("Password reset requested for {Email}. Token: {Token}", request.Email.Trim().ToLowerInvariant(), token);
+        var token = await store.CreatePasswordResetTokenAsync(request.Email);
+        if (token is not null)
+        {
+            await emailSender.SendAsync(request.Email, token, logger);
+        }
+    }
+    catch (Exception exception)
+    {
+        logger.LogWarning(exception, "Password reset request could not be completed for {Email}.", request.Email.Trim().ToLowerInvariant());
+        return Results.Problem(
+            title: "RESET_UNAVAILABLE",
+            detail: "Não foi possível iniciar a recuperação agora. Verifique se o banco PostgreSQL está rodando e tente novamente.",
+            statusCode: StatusCodes.Status503ServiceUnavailable);
     }
 
-    return Results.Ok(new PasswordResetResponse("Se o email existir, enviaremos as instruções de recuperação."));
+    return Results.Ok(new PasswordResetResponse("Se o email existir, enviaremos as instruÃ§Ãµes de recuperaÃ§Ã£o."));
 });
 
+
+app.MapPost("/api/auth/password-reset/confirm", async (PasswordResetConfirmRequest request, PostgresFinanceStore store) =>
+{
+    if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Token) || string.IsNullOrWhiteSpace(request.NewPassword))
+    {
+        return Results.BadRequest(new ApiError("INVALID_RESET", "Informe email, token e nova senha."));
+    }
+
+    if (request.NewPassword.Trim().Length < 6)
+    {
+        return Results.BadRequest(new ApiError("WEAK_PASSWORD", "A senha deve ter ao menos 6 caracteres."));
+    }
+
+    var changed = await store.CompletePasswordResetAsync(request);
+    return changed
+        ? Results.Ok(new PasswordResetResponse("Senha alterada com sucesso."))
+        : Results.BadRequest(new ApiError("INVALID_RESET_TOKEN", "Link de recuperação inválido ou expirado."));
+});
 app.MapGet("/api/users", async (PostgresFinanceStore store) =>
 {
     return Results.Ok(await store.GetRegisteredUsersAsync());
@@ -162,7 +194,7 @@ app.MapPost("/api/households", async (CreateHouseholdRequest request, PostgresFi
 {
     if (request.OwnerUserId == Guid.Empty)
     {
-        return Results.BadRequest(new ApiError("INVALID_USER", "Usuário inválido."));
+        return Results.BadRequest(new ApiError("INVALID_USER", "UsuÃ¡rio invÃ¡lido."));
     }
 
     if (string.IsNullOrWhiteSpace(request.Name))
@@ -199,7 +231,7 @@ app.MapPost("/api/categories", async (CreateCategoryRequest request, PostgresFin
 {
     if (request.UserId == Guid.Empty)
     {
-        return Results.BadRequest(new ApiError("INVALID_USER", "Usuário inválido."));
+        return Results.BadRequest(new ApiError("INVALID_USER", "UsuÃ¡rio invÃ¡lido."));
     }
 
     if (string.IsNullOrWhiteSpace(request.Name))
@@ -215,7 +247,7 @@ app.MapGet("/api/transactions", async (Guid userId, int? page, int? pageSize, in
 {
     if (month is < 1 or > 12)
     {
-        return Results.BadRequest(new ApiError("INVALID_MONTH", "Mês deve estar entre 1 e 12."));
+        return Results.BadRequest(new ApiError("INVALID_MONTH", "MÃªs deve estar entre 1 e 12."));
     }
 
     var requestedPage = Math.Max(1, page ?? 1);
@@ -228,12 +260,12 @@ app.MapDelete("/api/transactions", async ([FromBody] DeleteTransactionsRequest r
 {
     if (request.UserId == Guid.Empty)
     {
-        return Results.BadRequest(new ApiError("INVALID_USER", "Usuário inválido."));
+        return Results.BadRequest(new ApiError("INVALID_USER", "UsuÃ¡rio invÃ¡lido."));
     }
 
     if (request.TransactionIds.Count == 0)
     {
-        return Results.BadRequest(new ApiError("EMPTY_TRANSACTION_SELECTION", "Informe ao menos uma transação."));
+        return Results.BadRequest(new ApiError("EMPTY_TRANSACTION_SELECTION", "Informe ao menos uma transaÃ§Ã£o."));
     }
 
     var deletedCount = await store.DeleteTransactionsAsync(request.UserId, request.TransactionIds);
@@ -244,12 +276,12 @@ app.MapPost("/api/transactions", async (CreateTransactionRequest request, Postgr
 {
     if (request.UserId == Guid.Empty)
     {
-        return Results.BadRequest(new ApiError("INVALID_USER", "Usuário inválido."));
+        return Results.BadRequest(new ApiError("INVALID_USER", "UsuÃ¡rio invÃ¡lido."));
     }
 
     if (string.IsNullOrWhiteSpace(request.Description))
     {
-        return Results.BadRequest(new ApiError("INVALID_DESCRIPTION", "Informe uma descrição."));
+        return Results.BadRequest(new ApiError("INVALID_DESCRIPTION", "Informe uma descriÃ§Ã£o."));
     }
 
     if (request.Amount <= 0)
@@ -265,12 +297,12 @@ app.MapPost("/api/imports/statement", async (StatementImportRequest request, Pos
 {
     if (request.UserId == Guid.Empty)
     {
-        return Results.BadRequest(new ApiError("INVALID_USER", "Usuário inválido."));
+        return Results.BadRequest(new ApiError("INVALID_USER", "UsuÃ¡rio invÃ¡lido."));
     }
 
     if (request.Transactions.Count > 200)
     {
-        return Results.BadRequest(new ApiError("IMPORT_TOO_LARGE", "Importe no máximo 200 linhas por vez."));
+        return Results.BadRequest(new ApiError("IMPORT_TOO_LARGE", "Importe no mÃ¡ximo 200 linhas por vez."));
     }
 
     var imported = 0;
@@ -292,7 +324,7 @@ app.MapPost("/api/goals", async (CreateGoalRequest request, PostgresFinanceStore
 {
     if (request.UserId == Guid.Empty)
     {
-        return Results.BadRequest(new ApiError("INVALID_USER", "Usuário inválido."));
+        return Results.BadRequest(new ApiError("INVALID_USER", "UsuÃ¡rio invÃ¡lido."));
     }
 
     if (string.IsNullOrWhiteSpace(request.Name))
@@ -302,7 +334,7 @@ app.MapPost("/api/goals", async (CreateGoalRequest request, PostgresFinanceStore
 
     if (request.TargetAmount <= 0 || request.CurrentAmount < 0)
     {
-        return Results.BadRequest(new ApiError("INVALID_GOAL_AMOUNT", "Valores da meta inválidos."));
+        return Results.BadRequest(new ApiError("INVALID_GOAL_AMOUNT", "Valores da meta invÃ¡lidos."));
     }
 
     var goal = await store.AddGoalAsync(request);
@@ -318,12 +350,12 @@ app.MapPost("/api/predictable-incomes", async (CreatePredictableIncomeRequest re
 {
     if (request.UserId == Guid.Empty)
     {
-        return Results.BadRequest(new ApiError("INVALID_USER", "Usuário inválido."));
+        return Results.BadRequest(new ApiError("INVALID_USER", "UsuÃ¡rio invÃ¡lido."));
     }
 
     if (string.IsNullOrWhiteSpace(request.Description))
     {
-        return Results.BadRequest(new ApiError("INVALID_INCOME", "Informe a descrição da renda."));
+        return Results.BadRequest(new ApiError("INVALID_INCOME", "Informe a descriÃ§Ã£o da renda."));
     }
 
     if (request.Amount <= 0)
@@ -339,7 +371,7 @@ app.MapGet("/api/summaries/monthly", async (Guid userId, int year, int month, Po
 {
     if (month is < 1 or > 12)
     {
-        return Results.BadRequest(new ApiError("INVALID_MONTH", "Mês deve estar entre 1 e 12."));
+        return Results.BadRequest(new ApiError("INVALID_MONTH", "MÃªs deve estar entre 1 e 12."));
     }
 
     var transactions = await store.GetTransactionsAsync(userId);
@@ -359,11 +391,74 @@ app.MapGet("/api/projections/next-month", async (Guid userId, PostgresFinanceSto
 
 app.Run();
 
+public sealed class PasswordResetEmailSender
+{
+    private readonly IConfiguration configuration;
+
+    public PasswordResetEmailSender(IConfiguration configuration)
+    {
+        this.configuration = configuration;
+    }
+
+    public async Task SendAsync(string email, string token, ILogger logger)
+    {
+        var normalizedEmail = email.Trim().ToLowerInvariant();
+        var resetLink = BuildResetLink(normalizedEmail, token);
+        var host = configuration["Smtp:Host"];
+        var from = configuration["Smtp:From"];
+
+        if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(from))
+        {
+            logger.LogWarning("SMTP is not configured. Password reset link for {Email}: {ResetLink}", normalizedEmail, resetLink);
+            logger.LogInformation("Password reset token for {Email}: {Token}", normalizedEmail, token);
+            return;
+        }
+
+        using var message = new MailMessage(from, normalizedEmail)
+        {
+            Subject = "Recuperação de senha Poupa+",
+            Body = $"Use este link para redefinir sua senha no Poupa+: {resetLink}",
+            IsBodyHtml = false
+        };
+
+        using var client = new SmtpClient(host, GetInt("Smtp:Port", 587))
+        {
+            EnableSsl = GetBool("Smtp:EnableSsl", true)
+        };
+
+        var username = configuration["Smtp:Username"];
+        var password = configuration["Smtp:Password"];
+        if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
+        {
+            client.Credentials = new NetworkCredential(username, password);
+        }
+
+        await client.SendMailAsync(message);
+        logger.LogInformation("Password reset email sent to {Email}.", normalizedEmail);
+    }
+
+    private string BuildResetLink(string email, string token)
+    {
+        var publicBaseUrl = (configuration["PasswordReset:PublicBaseUrl"] ?? "http://127.0.0.1:5173").TrimEnd('/');
+        return $"{publicBaseUrl}/reset-password?email={Uri.EscapeDataString(email)}&token={Uri.EscapeDataString(token)}";
+    }
+
+    private int GetInt(string key, int fallback)
+    {
+        return int.TryParse(configuration[key], out var value) ? value : fallback;
+    }
+
+    private bool GetBool(string key, bool fallback)
+    {
+        return bool.TryParse(configuration[key], out var value) ? value : fallback;
+    }
+}
 public sealed record ApiError(string Code, string Message);
 public sealed record LocalLoginRequest(Guid? Id, string Name, string Email);
 public sealed record RegisterAccountRequest(Guid? Id, string Name, string Email, string Password);
 public sealed record LoginAccountRequest(string Email, string Password);
 public sealed record PasswordResetRequest(string Email);
+public sealed record PasswordResetConfirmRequest(string Email, string Token, string NewPassword);
 public sealed record PasswordResetResponse(string Message);
 public sealed record LocalUser(Guid Id, string Name, string Email, DateTimeOffset CreatedAt);
 public sealed record SyncPushRequest(IReadOnlyCollection<SyncPushItemRequest> Items);
@@ -555,6 +650,7 @@ public sealed class PostgresFinanceStore
     {
         var normalizedEmail = email.Trim().ToLowerInvariant();
         await using var connection = await dataSource.OpenConnectionAsync();
+        await EnsurePasswordResetTokensSchemaAsync(connection);
         await using var userCommand = new NpgsqlCommand("SELECT id FROM users WHERE email = @email LIMIT 1", connection);
         userCommand.Parameters.AddWithValue("email", normalizedEmail);
 
@@ -577,6 +673,61 @@ public sealed class PostgresFinanceStore
         return token;
     }
 
+
+    public async Task<bool> CompletePasswordResetAsync(PasswordResetConfirmRequest request)
+    {
+        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+        var tokenHash = HashPassword(request.Token.Trim(), normalizedEmail);
+        var passwordHash = HashPassword(request.NewPassword.Trim(), normalizedEmail);
+
+        await using var connection = await dataSource.OpenConnectionAsync();
+        await EnsurePasswordResetTokensSchemaAsync(connection);
+        await using var transaction = await connection.BeginTransactionAsync();
+
+        await using var tokenCommand = new NpgsqlCommand(
+            """
+            SELECT reset_tokens.id, reset_tokens.user_id
+            FROM password_reset_tokens reset_tokens
+            INNER JOIN users ON users.id = reset_tokens.user_id
+            WHERE users.email = @email
+              AND reset_tokens.token_hash = @tokenHash
+              AND reset_tokens.used_at IS NULL
+              AND reset_tokens.expires_at > now()
+            ORDER BY reset_tokens.created_at DESC
+            LIMIT 1;
+            """,
+            connection,
+            transaction);
+        tokenCommand.Parameters.AddWithValue("email", normalizedEmail);
+        tokenCommand.Parameters.AddWithValue("tokenHash", tokenHash);
+
+        Guid tokenId;
+        Guid userId;
+        await using (var reader = await tokenCommand.ExecuteReaderAsync())
+        {
+            if (!await reader.ReadAsync()) return false;
+            tokenId = reader.GetGuid(0);
+            userId = reader.GetGuid(1);
+        }
+
+        await using var passwordCommand = new NpgsqlCommand(
+            "UPDATE users SET password_hash = @passwordHash WHERE id = @userId;",
+            connection,
+            transaction);
+        passwordCommand.Parameters.AddWithValue("passwordHash", passwordHash);
+        passwordCommand.Parameters.AddWithValue("userId", userId);
+        await passwordCommand.ExecuteNonQueryAsync();
+
+        await using var usedCommand = new NpgsqlCommand(
+            "UPDATE password_reset_tokens SET used_at = now() WHERE id = @tokenId;",
+            connection,
+            transaction);
+        usedCommand.Parameters.AddWithValue("tokenId", tokenId);
+        await usedCommand.ExecuteNonQueryAsync();
+
+        await transaction.CommitAsync();
+        return true;
+    }
     public async Task<IReadOnlyCollection<LocalUser>> GetRegisteredUsersAsync()
     {
         var users = new List<LocalUser>();
@@ -673,7 +824,7 @@ public sealed class PostgresFinanceStore
             }
 
             await userReader.CloseAsync();
-            if (registeredUser is null) throw new InvalidOperationException("Usuário cadastrado não encontrado.");
+            if (registeredUser is null) throw new InvalidOperationException("UsuÃ¡rio cadastrado nÃ£o encontrado.");
         }
 
         var name = registeredUser?.Name ?? request.Name?.Trim();
@@ -1025,9 +1176,9 @@ public sealed class PostgresFinanceStore
         var defaults = new[]
         {
             ("Casa", "#176b5b"),
-            ("Alimentação", "#f97316"),
+            ("AlimentaÃ§Ã£o", "#f97316"),
             ("Transporte", "#2563eb"),
-            ("Saúde", "#dc2626"),
+            ("SaÃºde", "#dc2626"),
             ("Lazer", "#7c3aed")
         };
 
@@ -1045,6 +1196,23 @@ public sealed class PostgresFinanceStore
     }
 
 
+    private static async Task EnsurePasswordResetTokensSchemaAsync(NpgsqlConnection connection)
+    {
+        await using var command = new NpgsqlCommand(PasswordResetTokensSchemaSql, connection);
+        await command.ExecuteNonQueryAsync();
+    }
+
+    private const string PasswordResetTokensSchemaSql = """
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id uuid PRIMARY KEY,
+    user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash text NOT NULL,
+    expires_at timestamptz NOT NULL,
+    used_at timestamptz NULL,
+    created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user ON password_reset_tokens (user_id, expires_at);
+""";
     private static string HashPassword(string password, string normalizedEmail)
     {
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes($"{normalizedEmail}:{password}"));
@@ -1303,7 +1471,7 @@ public static class SyncPushProcessor
                     await store.AddPredictableIncomeAsync(DeserializePayload<CreatePredictableIncomeRequest>(item.Payload));
                     break;
                 default:
-                    return await RecordSyncFailureAsync(item, store, $"Entidade '{item.Entity}' não suportada pelo backend sync service.");
+                    return await RecordSyncFailureAsync(item, store, $"Entidade '{item.Entity}' nÃ£o suportada pelo backend sync service.");
             }
 
             await store.RecordSyncQueueItemAsync(item.QueueItemId, item.UserId, item.Entity, item.EntityId, item.Operation, "synced");

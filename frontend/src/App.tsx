@@ -21,7 +21,7 @@ import {
   updateBudget,
   updateGoal,
 } from './data/db'
-import { ApiConnectionError, listRegisteredUsers, loginAccount, registerAccount, requestPasswordReset } from './data/api'
+import { ApiConnectionError, listRegisteredUsers, loginAccount, registerAccount } from './data/api'
 import { syncPendingQueue } from './data/syncEngine'
 import type {
   BudgetInput,
@@ -51,7 +51,7 @@ export default function App() {
   const [loginEmail, setLoginEmail] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [isResettingPassword, setIsResettingPassword] = useState(false)
+  const [isPasswordRecoveryModalOpen, setIsPasswordRecoveryModalOpen] = useState(false)
   const [loginError, setLoginError] = useState<string | null>(null)
   const [syncStatus, setSyncStatus] = useState<DashboardSyncStatus>({ state: 'idle', message: 'Sync pronto' })
   const pendingSyncCount = useMemo(
@@ -158,28 +158,9 @@ export default function App() {
     }
   }
 
-  async function handlePasswordReset() {
-    const email = loginEmail.trim()
-    if (!email) {
-      setLoginError('Informe o email para receber a recuperação de senha.')
-      return
-    }
-
-    setIsResettingPassword(true)
+  function handlePasswordReset() {
     setLoginError(null)
-
-    try {
-      await requestPasswordReset(email)
-      toast.success('Se o email existir, enviaremos as instruções de recuperação.')
-    } catch (error) {
-      const message = error instanceof ApiConnectionError
-        ? 'Não foi possível conectar ao servidor para solicitar a recuperação.'
-        : 'Não foi possível solicitar a recuperação de senha agora.'
-      setLoginError(message)
-      toast.error(message)
-    } finally {
-      setIsResettingPassword(false)
-    }
+    setIsPasswordRecoveryModalOpen(true)
   }
 
   async function handleLogout() {
@@ -318,6 +299,7 @@ export default function App() {
     )
   }
 
+
   if (!snapshot) {
     return (
       <>
@@ -432,11 +414,10 @@ export default function App() {
               {authMode === 'login' ? (
                 <button
                   className="text-action"
-                  disabled={isResettingPassword}
                   type="button"
                   onClick={handlePasswordReset}
                 >
-                  {isResettingPassword ? 'Enviando...' : 'Recuperar senha'}
+                  Recuperar senha
                 </button>
               ) : null}
               {loginError ? <p className="form-error">{loginError}</p> : null}
@@ -447,6 +428,28 @@ export default function App() {
           </section>
         </section>
       </main>
+      {isPasswordRecoveryModalOpen ? (
+        <div className="auth-modal-overlay" role="presentation" onClick={() => setIsPasswordRecoveryModalOpen(false)}>
+          <section
+            aria-labelledby="password-recovery-title"
+            aria-modal="true"
+            className="auth-modal-card"
+            role="dialog"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="auth-modal-header">
+              <p className="eyebrow">Recuperação de senha</p>
+              <h2 id="password-recovery-title">Funcionalidade em desenvolvimento</h2>
+            </div>
+            <p className="muted">
+              A recuperação de senha ainda não está disponível nesta versão. Estamos preparando esse fluxo para que você possa redefinir o acesso com segurança.
+            </p>
+            <button className="primary-action" type="button" onClick={() => setIsPasswordRecoveryModalOpen(false)}>
+              Entendi
+            </button>
+          </section>
+        </div>
+      ) : null}
       <ToastContainer position="top-right" theme="light" />
       </>
     )

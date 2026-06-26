@@ -63,6 +63,15 @@ CREATE TABLE IF NOT EXISTS predictable_incomes (
     frequency text NOT NULL CHECK (frequency = 'monthly')
 );
 
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id uuid PRIMARY KEY,
+    user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash text NOT NULL,
+    expires_at timestamptz NOT NULL,
+    used_at timestamptz NULL,
+    created_at timestamptz NOT NULL DEFAULT now()
+);
 CREATE TABLE IF NOT EXISTS sync_queue (
     id uuid PRIMARY KEY,
     user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -117,6 +126,7 @@ CREATE INDEX IF NOT EXISTS idx_categories_user ON categories (user_id);
 CREATE INDEX IF NOT EXISTS idx_categories_household ON categories (household_id);
 CREATE INDEX IF NOT EXISTS idx_goals_user ON goals (user_id);
 CREATE INDEX IF NOT EXISTS idx_goals_household ON goals (household_id);
+CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user ON password_reset_tokens (user_id, expires_at);
 CREATE INDEX IF NOT EXISTS idx_sync_queue_user_status ON sync_queue (user_id, status);
 
 

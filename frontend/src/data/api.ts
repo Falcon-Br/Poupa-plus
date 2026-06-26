@@ -65,7 +65,7 @@ async function getJson<TResponse>(path: string): Promise<TResponse> {
   const response = await fetchApi(path)
 
   if (!response.ok) {
-    const message = await response.text().catch(() => '')
+    const message = await readApiErrorMessage(response)
     throw new ApiHttpError(response.status, `API failed (${response.status}) ${message}`.trim())
   }
 
@@ -80,13 +80,24 @@ async function postJson<TResponse>(path: string, body: unknown): Promise<TRespon
   })
 
   if (!response.ok) {
-    const message = await response.text().catch(() => '')
+    const message = await readApiErrorMessage(response)
     throw new ApiHttpError(response.status, `Sync failed (${response.status}) ${message}`.trim())
   }
 
   return response.json() as Promise<TResponse>
 }
 
+async function readApiErrorMessage(response: Response) {
+  const text = await response.text().catch(() => '')
+  if (!text) return ''
+
+  try {
+    const payload = JSON.parse(text) as { detail?: string; message?: string; title?: string }
+    return payload.detail ?? payload.message ?? payload.title ?? text
+  } catch {
+    return text
+  }
+}
 async function fetchApi(path: string, init?: RequestInit) {
   let lastError: unknown
   const candidates = [activeApiBaseUrl, ...apiBaseUrls.filter((baseUrl) => baseUrl !== activeApiBaseUrl)]
@@ -130,6 +141,10 @@ export async function loginAccount(email: string, password: string) {
 
 export async function requestPasswordReset(email: string) {
   return postJson<{ message: string }>('/api/auth/password-reset', { email })
+}
+
+export async function confirmPasswordReset(email: string, token: string, newPassword: string) {
+  return postJson<{ message: string }>('/api/auth/password-reset/confirm', { email, token, newPassword })
 }
 
 export async function listRegisteredUsers() {
